@@ -1,7 +1,7 @@
 import React ,{useState} from "react";
-import { Link } from "react-router-dom";
-import Validation from "./SignupValidation";
-import axios from "axios";
+import { Link } from 'react-router-dom';
+import Validation from './SignupValidation';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 function Signup() {
@@ -16,7 +16,7 @@ function Signup() {
     const [errors, setErrors] = useState({});
 
     const handleInput = (event) => {
-        setValues(prev => ({ ...prev, [event.target.name]: event.target.value }))
+        setValues(prev => ({ ...prev, [event.target.name]: [event.target.value] }))
     }
 
     const handleSubmit = (event) => {
@@ -30,13 +30,6 @@ function Signup() {
             .catch(err=> console.log(err));
         }
     }
-
-
-
-
-
-
-
 
     return (
 
