@@ -5,15 +5,19 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "scrap": "nodemon scrap.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.7",
+    "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
     "express": "^4.18.3",
     "mysql": "^2.18.1",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "puppeteer": "^22.5.0"
   }
 }
