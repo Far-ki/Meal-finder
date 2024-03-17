@@ -39,6 +39,9 @@ async function scrapeRecipes(url) {
                             ingredients.push(ingredient);
                         });
 
+                        const encodedUrl = encodeURIComponent(recipeUrl);
+                        await axios.post('http://localhost:8081/recipes', { recipeTitle, ingredients, recipeUrl: encodedUrl });
+
                         console.log(`Title: ${recipeTitle}`);
                         console.log('Ingredients:', ingredients);
                     }
