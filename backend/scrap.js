@@ -9,7 +9,7 @@ async function scrapeRecipes(url) {
             const html = response.data;
             const $ = cheerio.load(html);
 
-            console.log(`Scraping page: ${response.config.url} \n`);
+            console.log(`Scraping page: ${response.config.url}\n`);
 
             const recipes = $('div.tile');
 
@@ -39,16 +39,24 @@ async function scrapeRecipes(url) {
                             ingredients.push(ingredient);
                         });
 
-                        const encodedUrl = encodeURIComponent(recipeUrl);
-                        await axios.post('http://localhost:8081/recipes', { recipeTitle, ingredients, recipeUrl: encodedUrl });
+                        const recipeImage = $recipe('img.gallery-picture-no').attr('src');
+
+
+                            await axios.post('http://localhost:8081/recipes', { recipeTitle, ingredients, recipeUrl, recipeImage });
+           
+   
+
+
 
                         console.log(`Title: ${recipeTitle}`);
                         console.log('Ingredients:', ingredients);
+                        console.log('UrlPage:', recipeUrl);
+                        console.log('Image:',recipeImage);
                     }
                 } catch (error) {
                     console.error(`Error while scraping recipe data: ${error}`);
                 }
-            }
+            } 
 
             page++;
             await new Promise(resolve => setTimeout(resolve, 5000));
