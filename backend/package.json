@@ -6,8 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
-    "scrap": "nodemon scrap.js"
-  },
+    "scrap_vegetarian": "nodemon scrap_vegetarian.js",
+    "vegetarian": "nodemon vegetarian.js"
+
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

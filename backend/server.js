@@ -66,6 +66,39 @@ app.post('/recipes', (req, res) => {
 });
 
 
+app.post('/vegetarian', (req, res) => {
+    const { recipeTitle, ingredients, recipeUrl, recipeImage,difficulty,cook_time } = req.body;
+
+    const decodedUrl = decodeURIComponent(recipeUrl);
+
+    const sql = "INSERT INTO meal.vegetarian(name, ingredients, url,img,difficulty,time) VALUES (?, ?, ?,?,?,?)";
+    const values = [recipeTitle, ingredients.join(', '), decodedUrl,recipeImage,difficulty,cook_time];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas zapisywania przepisu do bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas zapisywania przepisu do bazy danych' });
+        } else {
+            console.log('Przepis został pomyślnie zapisany do bazy danych.');
+            res.status(200).json({ message: 'Przepis został pomyślnie zapisany do bazy danych' });
+        }
+    });
+});
+
+
+app.get('/vegetarian', (req, res) => {
+    const sql = "SELECT * FROM meal.vegetarian";
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas pobierania przepisów z bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas pobierania przepisów z bazy danych' });
+        } else {
+            console.log('Pomyślnie pobrano przepisy z bazy danych.');
+            res.status(200).json(result);
+        }
+    });
+});
 
 app.get('/recipes', (req, res) => {
     const sql = "SELECT * FROM meal.recipes";
