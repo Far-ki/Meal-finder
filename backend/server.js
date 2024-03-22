@@ -47,12 +47,12 @@ app.post('/login', (req, res) => {
 })
 
 app.post('/recipes', (req, res) => {
-    const { recipeTitle, ingredients, recipeUrl, recipeImage } = req.body;
+    const { recipeTitle, ingredients, recipeUrl, recipeImage,difficulty,cook_time } = req.body;
 
     const decodedUrl = decodeURIComponent(recipeUrl);
 
-    const sql = "INSERT INTO meal.recipes(name, ingredients, url,img) VALUES (?, ?, ?,?)";
-    const values = [recipeTitle, ingredients.join(', '), decodedUrl,recipeImage];
+    const sql = "INSERT INTO meal.recipes(name, ingredients, url,img,difficulty,time) VALUES (?, ?, ?,?,?,?)";
+    const values = [recipeTitle, ingredients.join(', '), decodedUrl,recipeImage,difficulty,cook_time];
 
     db.query(sql, values, (err, result) => {
         if (err) {
