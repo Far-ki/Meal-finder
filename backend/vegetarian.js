@@ -42,6 +42,20 @@ async function scrapeRecipes(url) {
                         const commentsLink = $recipe('li span a[href="#comments"]');
                         let difficultyText, cook_time;
                         
+
+
+                        const h4Tag = $recipe('h4.marked');
+
+                        if (h4Tag.length > 0) {
+                            if (commentsLink.length > 0) {
+                                difficultyText = $recipe('header.col-60 li:has(span)').eq(2).text();
+                                cook_time = $recipe('header.col-60 li:has(span)').eq(3).text().trim();
+                            } else {
+                                difficultyText = $recipe('header.col-60 li:has(span)').eq(1).text();
+                                cook_time = $recipe('header.col-60 li:has(span)').eq(2).text().trim();
+                            }
+                        }
+                        else {
                         if (commentsLink.length > 0) {
                             difficultyText = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(1).text();
                             cook_time = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(2).text().trim();
@@ -49,7 +63,7 @@ async function scrapeRecipes(url) {
                             difficultyText = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').first().text();
                             cook_time = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(1).text().trim();
                         }
-                        
+                    }
                         const recipeImage = $recipe('img.gallery-picture-no').attr('src');
                         const difficulty = difficultyText.replace(/TRUDNOŚĆ:\s*/i, '');
                         
