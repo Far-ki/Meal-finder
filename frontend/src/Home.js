@@ -1,29 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Home() {
     const [recipes, setRecipes] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const fetchRecipes = useCallback(() => {
+        setLoading(true);
+        fetch(`http://localhost:8081/recipes/search?ingredients=${searchQuery}`)
+            .then(response => {
+                console.log(response);
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                setRecipes(data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Błąd podczas pobierania przepisów:', error);
+                setLoading(false);
+            });
+    }, [searchQuery]);
 
     useEffect(() => {
-        fetchRecipes();
-    }, []);
+        if (searchQuery.trim() !== '') {
+            fetchRecipes();
+        }
+    }, [searchQuery, fetchRecipes]);
 
-    const fetchRecipes = () => {
-        fetch('http://localhost:8081/recipes')
-            .then(response => response.json())
-            .then(data => {
-                setRecipes(data);
-            })
-            .catch(error => console.error('Błąd podczas pobierania przepisów:', error));
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
     };
 
-    const handleQueryClick = (query) => {
-        fetch(`http://localhost:8081/recipes/${query}`)
-            .then(response => response.json())
-            .then(data => {
-                setRecipes(data);
-            })
-            .catch(error => console.error(`Błąd podczas pobierania przepisów dla zapytania ${query}:`, error));
+    const handleSearchSubmit = (event) => {
+        event.preventDefault();
+        if (searchQuery.trim() !== '') {
+            fetchRecipes();
+        }
     };
 
     const handleLogout = () => {
@@ -54,42 +69,32 @@ function Home() {
                 </div>
             </nav>  
             <div className="container mt-3">
-                <div className="row">
-                    <div className="col">
-                        <button className="btn btn-info me-2" onClick={() => handleQueryClick('query1')}>Zapytanie 1</button>
+                <form onSubmit={handleSearchSubmit}>
+                    <div className="input-group mb-3">
+                        <input type="text" className="form-control" placeholder="Enter ingredients separated by commas..." value={searchQuery} onChange={handleSearchChange} />
+                        <button className="btn btn-outline-primary" type="submit">Search</button>
                     </div>
-                    <div className="col">
-                        <button className="btn btn-info me-2" onClick={() => handleQueryClick('query2')}>Zapytanie 2</button>
-                    </div>
-                    <div className="col">
-                        <button className="btn btn-info me-2" onClick={() => handleQueryClick('query3')}>Zapytanie 3</button>
-                    </div>
-                    <div className="col">
-                        <button className="btn btn-info me-2" onClick={() => handleQueryClick('query4')}>Zapytanie 4</button>
-                    </div>
-                    <div className="col">
-                        <button className="btn btn-info me-2" onClick={() => handleQueryClick('query5')}>Zapytanie 5</button>
-                    </div>
-                    <div className="col">
-                        <button className="btn btn-info me-2" onClick={() => handleQueryClick('query6')}>Zapytanie 6</button>
-                    </div>
-                </div>
+                </form>
             </div>
             <div className="container mt-5">
-                <div className="row row-cols-1 row-cols-md-3 g-4">
-                    {recipes.map(recipe => (
-                        <div className="col mb-4" key={recipe.id}>
-                            <div className="card h-100">
-                                <div className="card-body">
-                                    <h5 className="card-title">{recipe.name}</h5>
-                                    <img height="50%" width="100%" src={recipe.img} alt="Zdjecie" />
-                                    <p className="card-text">Ingredients: {recipe.ingredients}</p>
-                                    <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Przejdz do przepisu na {`${recipe.name}`}</a>
+                {loading ? (
+                    <p>Loading...</p>
+                ) : (
+                    <div className="row row-cols-1 row-cols-md-3 g-4">
+                        {recipes.map(recipe => (
+                            <div className="col mb-4" key={recipe.id}>
+                                <div className="card h-100">
+                                    <div className="card-body">
+                                        <h5 className="card-title">{recipe.name}</h5>
+                                        <img height="50%" width="100%" src={recipe.img} alt="Zdjecie" />
+                                        <p className="card-text">Ingredients: {recipe.ingredients}</p>
+                                        <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Przejdz do przepisu na {`${recipe.name}`}</a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -114,6 +114,27 @@ app.get('/recipes', (req, res) => {
     });
 });
 
+app.get('/recipes/search', (req, res) => {
+    const searchQuery = req.query.ingredients;
+    const ingredientsArray = searchQuery.split(',').map(ingredient => ingredient.trim());
+    const placeholders = ingredientsArray.map(() => 'ingredients LIKE ?').join(' OR ');
+    const values = ingredientsArray.map(ingredient => `%${ingredient}%`);
+
+    const sql = `SELECT * FROM meal.recipes WHERE ${placeholders}`;
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas wyszukiwania przepisów:', err);
+            res.status(500).json({ message: 'Błąd podczas wyszukiwania przepisów' });
+        } else {
+            console.log('Pomyślnie znaleziono przepisy pasujące do wyszukiwania.');
+            res.status(200).json(result);
+        }
+    });
+});
+
+
+
 
 app.listen(8081, () => {
     console.log("listening");
