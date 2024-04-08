@@ -1,20 +1,22 @@
 import React, { useState, useEffect, useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import nlp from 'compromise'; // Importuj bibliotekę compromise
+import { Modal, Button } from 'react-bootstrap';
 
 function Home() {
     const [recipes, setRecipes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const [selectedRecipeIngredients, setSelectedRecipeIngredients] = useState([]);
+    const [showIngredientsModal, setShowIngredientsModal] = useState(false);
+    const [enteredIngredients, setEnteredIngredients] = useState([]);
 
-    const fetchRecipes = useCallback(() => {
+    const fetchRecipes = useCallback((query) => {
         setLoading(true);
-        fetch(`http://localhost:8081/recipes/search?ingredients=${searchQuery}`)
-            .then(response => {
-                console.log(response);
-                return response.json();
-            })
+        const normalizedQuery = normalizeQuery(query);
+        fetch(`http://localhost:8081/recipes/search?ingredients=${normalizedQuery}`)
+            .then(response => response.json())
             .then(data => {
-                console.log(data);
                 setRecipes(data);
                 setLoading(false);
             })
@@ -22,27 +24,40 @@ function Home() {
                 console.error('Błąd podczas pobierania przepisów:', error);
                 setLoading(false);
             });
-    }, [searchQuery]);
+    }, []);
 
-    useEffect(() => {
-        if (searchQuery.trim() !== '') {
-            fetchRecipes();
-        }
-    }, [searchQuery, fetchRecipes]);
-
-    const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
-
-    const handleSearchSubmit = (event) => {
-        event.preventDefault();
-        if (searchQuery.trim() !== '') {
-            fetchRecipes();
-        }
+    const handleSearch = () => {
+        fetchRecipes(searchQuery);
+        setEnteredIngredients(prevIngredients => [...prevIngredients, ...searchQuery.split(',').map(ingredient => nlp(ingredient.trim()).normalize().out('text'))]);
+        setSearchQuery('');
     };
 
     const handleLogout = () => {
         window.location.href = "http://localhost:3000/"; 
+    };
+
+    const removeEnteredIngredient = (indexToRemove) => {
+        setEnteredIngredients(prevIngredients => prevIngredients.filter((_, index) => index !== indexToRemove));
+    };
+
+    const normalizeQuery = (query) => {
+        const normalizedIngredients = query.split(',').map(ingredient => nlp(ingredient.trim()).normalize().out('text'));
+        return normalizedIngredients.join(',');
+    };
+
+    const handleShowIngredients = (ingredients) => {
+        setSelectedRecipeIngredients(ingredients.split(','));
+        setShowIngredientsModal(true);
+    };
+
+    const renderIngredients = (ingredients) => {
+        return (
+            <ul>
+                {ingredients.map((ingredient, index) => (
+                    <li key={index}>{ingredient}</li>
+                ))}
+            </ul>
+        );
     };
 
     return (
@@ -69,12 +84,30 @@ function Home() {
                 </div>
             </nav>  
             <div className="container mt-3">
-                <form onSubmit={handleSearchSubmit}>
-                    <div className="input-group mb-3">
-                        <input type="text" className="form-control" placeholder="Enter ingredients separated by commas..." value={searchQuery} onChange={handleSearchChange} />
-                        <button className="btn btn-outline-primary" type="submit">Search</button>
-                    </div>
-                </form>
+                <div className="input-group mb-3">
+                    <input 
+                        type="text" 
+                        className="form-control" 
+                        placeholder="Enter ingredients separated by commas..." 
+                        value={searchQuery} 
+                        onChange={event => setSearchQuery(event.target.value)} 
+                        onKeyDown={event => {
+                            if (event.key === 'Enter') {
+                                event.preventDefault();
+                                handleSearch();
+                            }
+                        }} 
+                    />
+                    <button className="btn btn-outline-primary" type="button" onClick={handleSearch}>Search</button>
+                </div>
+                <div>
+                    {enteredIngredients.map((ingredient, index) => (
+                        <span key={index} className="badge bg-primary me-2 mb-2">
+                            {ingredient}
+                            <button type="button" className="btn-close ms-2" onClick={() => removeEnteredIngredient(index)}></button>
+                        </span>
+                    ))}
+                </div>
             </div>
             <div className="container mt-5">
                 {loading ? (
@@ -86,9 +119,11 @@ function Home() {
                                 <div className="card h-100">
                                     <div className="card-body">
                                         <h5 className="card-title">{recipe.name}</h5>
-                                        <img height="50%" width="100%" src={recipe.img} alt="Zdjecie" />
-                                        <p className="card-text">Ingredients: {recipe.ingredients}</p>
-                                        <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Przejdz do przepisu na {`${recipe.name}`}</a>
+                                        <img src={recipe.img} alt="Recipe" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+                                        <div className="d-flex justify-content-between">
+                                            <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Show Ingredients</Button>
+                                            <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">View Recipe</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -96,6 +131,14 @@ function Home() {
                     </div>
                 )}
             </div>
+            <Modal show={showIngredientsModal} onHide={() => setShowIngredientsModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Ingredients</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {renderIngredients(selectedRecipeIngredients)}
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }
