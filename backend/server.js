@@ -1,3 +1,4 @@
+const nlp = require('compromise');
 const express = require("express");
 const mysql = require('mysql');
 const cors = require('cors');
@@ -12,7 +13,15 @@ const db = mysql.createConnection({
     user: "root",
     password: "",
     database: "signup"
-})
+});
+
+const normalizeIngredient = (ingredient) => {
+    return nlp(ingredient).normalize().out('text');
+};
+
+const normalizeIngredients = (query) => {
+    return query.split(',').map(ingredient => normalizeIngredient(ingredient.trim()));
+};
 
 app.post('/signup', (req, res) => {
     const sql = "INSERT INTO login(name,email,password) VALUES (?)"
@@ -28,7 +37,7 @@ app.post('/signup', (req, res) => {
         return res.json(data);
     })
 
-})
+});
 
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM login WHERE email = ? AND password = ?";
@@ -44,15 +53,15 @@ app.post('/login', (req, res) => {
         }
     })
 
-})
+});
 
 app.post('/recipes', (req, res) => {
-    const { recipeTitle, ingredients, recipeUrl, recipeImage,difficulty,cook_time } = req.body;
+    const { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time } = req.body;
 
     const decodedUrl = decodeURIComponent(recipeUrl);
 
     const sql = "INSERT INTO meal.recipes(name, ingredients, url,img,difficulty,time) VALUES (?, ?, ?,?,?,?)";
-    const values = [recipeTitle, ingredients.join(', '), decodedUrl,recipeImage,difficulty,cook_time];
+    const values = [recipeTitle, ingredients.join(', '), decodedUrl, recipeImage, difficulty, cook_time];
 
     db.query(sql, values, (err, result) => {
         if (err) {
@@ -65,14 +74,13 @@ app.post('/recipes', (req, res) => {
     });
 });
 
-
 app.post('/vegetarian', (req, res) => {
-    const { recipeTitle, ingredients, recipeUrl, recipeImage,difficulty,cook_time } = req.body;
+    const { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time } = req.body;
 
     const decodedUrl = decodeURIComponent(recipeUrl);
 
     const sql = "INSERT INTO meal.vegetarian(name, ingredients, url,img,difficulty,time) VALUES (?, ?, ?,?,?,?)";
-    const values = [recipeTitle, ingredients.join(', '), decodedUrl,recipeImage,difficulty,cook_time];
+    const values = [recipeTitle, ingredients.join(', '), decodedUrl, recipeImage, difficulty, cook_time];
 
     db.query(sql, values, (err, result) => {
         if (err) {
@@ -84,7 +92,6 @@ app.post('/vegetarian', (req, res) => {
         }
     });
 });
-
 
 app.get('/vegetarian', (req, res) => {
     const sql = "SELECT * FROM meal.vegetarian";
@@ -116,9 +123,9 @@ app.get('/recipes', (req, res) => {
 
 app.get('/recipes/search', (req, res) => {
     const searchQuery = req.query.ingredients;
-    const ingredientsArray = searchQuery.split(',').map(ingredient => ingredient.trim());
-    const placeholders = ingredientsArray.map(() => 'ingredients LIKE ?').join(' OR ');
-    const values = ingredientsArray.map(ingredient => `%${ingredient}%`);
+    const normalizedIngredients = normalizeIngredients(searchQuery);
+    const placeholders = normalizedIngredients.map(() => 'ingredients LIKE ?').join(' AND ');
+    const values = normalizedIngredients.map(ingredient => `%${ingredient}%`);
 
     const sql = `SELECT * FROM meal.recipes WHERE ${placeholders}`;
 
@@ -133,9 +140,6 @@ app.get('/recipes/search', (req, res) => {
     });
 });
 
-
-
-
 app.listen(8081, () => {
     console.log("listening");
-})
+});

@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import nlp from 'compromise'; // Importuj bibliotekę compromise
 import { Modal, Button } from 'react-bootstrap';
 
 function Home() {
@@ -13,8 +12,7 @@ function Home() {
 
     const fetchRecipes = useCallback((query) => {
         setLoading(true);
-        const normalizedQuery = normalizeQuery(query);
-        fetch(`http://localhost:8081/recipes/search?ingredients=${normalizedQuery}`)
+        fetch(`http://localhost:8081/recipes/search?ingredients=${query}`)
             .then(response => response.json())
             .then(data => {
                 setRecipes(data);
@@ -27,8 +25,7 @@ function Home() {
     }, []);
 
     const handleSearch = () => {
-        fetchRecipes(searchQuery);
-        setEnteredIngredients(prevIngredients => [...prevIngredients, ...searchQuery.split(',').map(ingredient => nlp(ingredient.trim()).normalize().out('text'))]);
+        fetchRecipes(enteredIngredients.join(','));
         setSearchQuery('');
     };
 
@@ -38,11 +35,7 @@ function Home() {
 
     const removeEnteredIngredient = (indexToRemove) => {
         setEnteredIngredients(prevIngredients => prevIngredients.filter((_, index) => index !== indexToRemove));
-    };
-
-    const normalizeQuery = (query) => {
-        const normalizedIngredients = query.split(',').map(ingredient => nlp(ingredient.trim()).normalize().out('text'));
-        return normalizedIngredients.join(',');
+        fetchRecipes(enteredIngredients.filter((_, index) => index !== indexToRemove).join(',')); // Aktualizacja wyników wyszukiwania po usunięciu składnika
     };
 
     const handleShowIngredients = (ingredients) => {
@@ -58,6 +51,16 @@ function Home() {
                 ))}
             </ul>
         );
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const normalizedIngredient = encodeURIComponent(searchQuery.trim());
+            setEnteredIngredients(prevIngredients => [...prevIngredients, searchQuery.trim()]);
+            setSearchQuery('');
+            fetchRecipes([...enteredIngredients, searchQuery.trim()].join(','));
+        }
     };
 
     return (
@@ -91,12 +94,7 @@ function Home() {
                         placeholder="Enter ingredients separated by commas..." 
                         value={searchQuery} 
                         onChange={event => setSearchQuery(event.target.value)} 
-                        onKeyDown={event => {
-                            if (event.key === 'Enter') {
-                                event.preventDefault();
-                                handleSearch();
-                            }
-                        }} 
+                        onKeyDown={handleKeyDown} 
                     />
                     <button className="btn btn-outline-primary" type="button" onClick={handleSearch}>Search</button>
                 </div>
