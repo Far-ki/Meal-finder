@@ -124,7 +124,8 @@ app.get('/recipes', (req, res) => {
 app.get('/recipes/search', (req, res) => {
     const searchQuery = req.query.ingredients;
     const normalizedIngredients = normalizeIngredients(searchQuery);
-    const placeholders = normalizedIngredients.map(() => 'ingredients LIKE ?').join(' AND ');
+
+    const placeholders = normalizedIngredients.map(() => 'ingredients LIKE ?').join(' OR ');
     const values = normalizedIngredients.map(ingredient => `%${ingredient}%`);
 
     const sql = `SELECT * FROM meal.recipes WHERE ${placeholders}`;
@@ -135,10 +136,23 @@ app.get('/recipes/search', (req, res) => {
             res.status(500).json({ message: 'Błąd podczas wyszukiwania przepisów' });
         } else {
             console.log('Pomyślnie znaleziono przepisy pasujące do wyszukiwania.');
-            res.status(200).json(result);
+
+            const recipesWithMissingIngredients = result.map(recipe => {
+                const recipeIngredients = recipe.ingredients.split(',').map(ingredient => ingredient.trim().toLowerCase());
+                const missingIngredients = normalizedIngredients.filter(ingredient => !recipeIngredients.includes(ingredient));
+                return {
+                    ...recipe,
+                    missingIngredients: missingIngredients
+                };
+            });
+
+            res.status(200).json(recipesWithMissingIngredients);
         }
     });
 });
+
+
+
 
 app.listen(8081, () => {
     console.log("listening");

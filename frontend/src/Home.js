@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 
@@ -9,6 +9,11 @@ function Home() {
     const [selectedRecipeIngredients, setSelectedRecipeIngredients] = useState([]);
     const [showIngredientsModal, setShowIngredientsModal] = useState(false);
     const [enteredIngredients, setEnteredIngredients] = useState([]);
+    const [basicIngredients, setBasicIngredients] = useState({
+        vegetables: ['marchew', 'ziemniak', 'cebula', 'pomidor', 'sałata', 'brokuł', 'papryka', 'czosnek', 'kapusta', 'szpinak'],
+        fruits: ['jabłko', 'banan', 'pomarańcza', 'gruszka', 'winogrono', 'truskawka', 'malina', 'ananas', 'kiwi', 'mango'],
+        meats: ['kurczak', 'wołowina', 'wieprzowina', 'indyk', 'jajka', 'łosoś', 'tuńczyk', 'szynka', 'kiełbasa', 'cielęcina']
+    });
 
     const fetchRecipes = useCallback((query) => {
         setLoading(true);
@@ -24,6 +29,10 @@ function Home() {
             });
     }, []);
 
+    useEffect(() => {
+        fetchRecipes('');
+    }, [fetchRecipes]);
+
     const handleSearch = () => {
         fetchRecipes(enteredIngredients.join(','));
         setSearchQuery('');
@@ -35,7 +44,7 @@ function Home() {
 
     const removeEnteredIngredient = (indexToRemove) => {
         setEnteredIngredients(prevIngredients => prevIngredients.filter((_, index) => index !== indexToRemove));
-        fetchRecipes(enteredIngredients.filter((_, index) => index !== indexToRemove).join(',')); // Aktualizacja wyników wyszukiwania po usunięciu składnika
+        fetchRecipes(enteredIngredients.filter((_, index) => index !== indexToRemove).join(','));
     };
 
     const handleShowIngredients = (ingredients) => {
@@ -61,6 +70,25 @@ function Home() {
             setSearchQuery('');
             fetchRecipes([...enteredIngredients, searchQuery.trim()].join(','));
         }
+    };
+
+    const sortRecipesByOwnedIngredients = () => {
+        const sortedRecipes = [...recipes];
+        sortedRecipes.forEach(recipe => {
+            const recipeIngredients = recipe.ingredients && typeof recipe.ingredients === 'string' ? recipe.ingredients.split(',').map(ingredient => ingredient.trim().toLowerCase()) : [];
+            const ownedIngredients = enteredIngredients.filter(ingredient => recipeIngredients.includes(ingredient));
+            const missingIngredientsCount = recipeIngredients.length - ownedIngredients.length;
+            recipe.missingIngredientsCount = missingIngredientsCount;
+        });
+        sortedRecipes.sort((a, b) => a.missingIngredientsCount - b.missingIngredientsCount);
+        return sortedRecipes;
+    };
+
+    const handleSearchBasicIngredient = (ingredient) => {
+        const normalizedIngredient = encodeURIComponent(ingredient.trim());
+        setEnteredIngredients(prevIngredients => [...prevIngredients, ingredient.trim()]);
+        setSearchQuery('');
+        fetchRecipes([...enteredIngredients, ingredient.trim()].join(','));
     };
 
     return (
@@ -91,7 +119,7 @@ function Home() {
                     <input 
                         type="text" 
                         className="form-control" 
-                        placeholder="Enter ingredients separated by commas..." 
+                        placeholder="Enter ingredients" 
                         value={searchQuery} 
                         onChange={event => setSearchQuery(event.target.value)} 
                         onKeyDown={handleKeyDown} 
@@ -107,16 +135,52 @@ function Home() {
                     ))}
                 </div>
             </div>
+            <div className="container mt-5 border-top pt-5">
+                <h2>Basic Ingredients</h2>
+                <div className="row">
+                    <div className="col">
+                        <h3>Vegetables</h3>
+                        <div className="d-flex flex-wrap">
+                            {basicIngredients.vegetables.map((ingredient, index) => (
+                                <div key={index} className="badge bg-success me-2 mb-2 p-2" onClick={() => handleSearchBasicIngredient(ingredient)}>
+                                    {ingredient}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="col">
+                        <h3>Fruits</h3>
+                        <div className="d-flex flex-wrap">
+                            {basicIngredients.fruits.map((ingredient, index) => (
+                                <div key={index} className="badge bg-warning me-2 mb-2 p-2" onClick={() => handleSearchBasicIngredient(ingredient)}>
+                                    {ingredient}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="col">
+                        <h3>Meats</h3>
+                        <div className="d-flex flex-wrap">
+                            {basicIngredients.meats.map((ingredient, index) => (
+                                <div key={index} className="badge bg-danger me-2 mb-2 p-2" onClick={() => handleSearchBasicIngredient(ingredient)}>
+                                    {ingredient}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div className="container mt-5">
                 {loading ? (
                     <p>Loading...</p>
                 ) : (
                     <div className="row row-cols-1 row-cols-md-3 g-4">
-                        {recipes.map(recipe => (
+                        {sortRecipesByOwnedIngredients().map(recipe => (
                             <div className="col mb-4" key={recipe.id}>
                                 <div className="card h-100">
                                     <div className="card-body">
                                         <h5 className="card-title">{recipe.name}</h5>
+                                        <p>Missing Ingredients: {recipe.missingIngredientsCount}</p>
                                         <img src={recipe.img} alt="Recipe" style={{ maxWidth: '100%', maxHeight: '100%' }} />
                                         <div className="d-flex justify-content-between">
                                             <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Show Ingredients</Button>

@@ -1,6 +1,5 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const nlp = require('compromise'); 
 
 async function scrapeRecipes(url) {
     try {
@@ -43,10 +42,6 @@ async function scrapeRecipes(url) {
                         const commentsLink = $recipe('li span a[href="#comments"]');
                         let difficultyText, cook_time;
 
-                        // Normalizacja danych
-                        const normalizedName = normalizeText(recipeTitle);
-                        const normalizedIngredients = ingredients.map(ingredient => normalizeText(ingredient));
-
                         const h4Tag = $recipe('h4.marked');
 
                         if (h4Tag.length > 0) {
@@ -71,18 +66,17 @@ async function scrapeRecipes(url) {
                         const recipeImage = $recipe('img.gallery-picture-no').attr('src');
                         const difficulty = difficultyText.replace(/TRUDNOŚĆ:\s*/i, '');
 
-                      
                         await axios.post('http://localhost:8081/recipes', {
-                            recipeTitle: normalizedName,
-                            ingredients: normalizedIngredients,
+                            recipeTitle,
+                            ingredients,
                             recipeUrl,
                             recipeImage,
                             difficulty,
                             cook_time
                         });
 
-                        console.log(`Title: ${normalizedName}`);
-                        console.log('Ingredients:', normalizedIngredients);
+                        console.log(`Title: ${recipeTitle}`);
+                        console.log('Ingredients:', ingredients);
                         console.log('UrlPage:', recipeUrl);
                         console.log('Image:', recipeImage);
                         console.log('Difficulty:', difficulty);
@@ -100,13 +94,6 @@ async function scrapeRecipes(url) {
         console.error('Error while scraping the page:', error);
     }
 }
-
-
-const normalizeText = (text) => {
-    const doc = nlp(text);
-    const normalizedText = doc.normalize().out('text');
-    return normalizedText;
-};
 
 const mainPageUrl = 'https://gotujmy.pl/przepisy.html';
 scrapeRecipes(mainPageUrl);
