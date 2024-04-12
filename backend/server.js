@@ -121,6 +121,26 @@ app.get('/recipes', (req, res) => {
     });
 });
 
+app.get('/user', (req, res) => {
+    const userEmail = req.query.email;
+
+    const sql = "SELECT name FROM login WHERE email = ?";
+    db.query(sql, [userEmail], (err, result) => {
+        if (err) {
+            console.error('Błąd podczas pobierania nazwy użytkownika z bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas pobierania nazwy użytkownika z bazy danych' });
+        } else {
+            if (result.length > 0) {
+                const userName = result[0].name;
+                res.status(200).json({ name: userName });
+            } else {
+                res.status(404).json({ message: 'Nie znaleziono użytkownika o podanym adresie e-mail' });
+            }
+        }
+    });
+});
+
+
 app.get('/recipes/search', (req, res) => {
     const searchQuery = req.query.ingredients;
     const normalizedIngredients = normalizeIngredients(searchQuery);
