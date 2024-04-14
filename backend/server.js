@@ -122,7 +122,7 @@ app.get('/recipes', (req, res) => {
 });
 
 app.get('/user', (req, res) => {
-    const userEmail = req.query.email;
+    const userEmail = req.query.email; 
 
     const sql = "SELECT name FROM login WHERE email = ?";
     db.query(sql, [userEmail], (err, result) => {

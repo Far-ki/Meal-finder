@@ -18,10 +18,10 @@ function Login() {
         axios.post('http://localhost:8081/login', values)
             .then(res => {
                 if(res.data === "Success") {
-                    // Przekazujemy email i nazwę użytkownika do lokalnego stanu lub adresu URL
+
                     localStorage.setItem('userEmail', values.email);
-                    localStorage.setItem('userName', values.name); // Załóżmy, że nazwa użytkownika jest stała
-                    navigate('/home'); // Przekierowanie do profilu po zalogowaniu
+                    localStorage.setItem('userName', values.name);
+                    navigate('/home');
                 } else {
                     alert("No record existed");
                 }

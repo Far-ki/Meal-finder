@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
+import levenshtein from 'js-levenshtein';
 
 function Home() {
+
     const [recipes, setRecipes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [selectedRecipeIngredients, setSelectedRecipeIngredients] = useState([]);
     const [showIngredientsModal, setShowIngredientsModal] = useState(false);
     const [enteredIngredients, setEnteredIngredients] = useState([]);
-    const [basicIngredients, setBasicIngredients] = useState({
+    const [basicIngredients] = useState({
         vegetables: ['marchew', 'ziemniak', 'cebula', 'pomidor', 'sałata', 'brokuł', 'papryka', 'czosnek', 'kapusta', 'szpinak'],
         fruits: ['jabłko', 'banan', 'pomarańcza', 'gruszka', 'winogrono', 'truskawka', 'malina', 'ananas', 'kiwi', 'mango'],
         meats: ['kurczak', 'wołowina', 'wieprzowina', 'indyk', 'jajka', 'łosoś', 'tuńczyk', 'szynka', 'kiełbasa', 'cielęcina']
@@ -29,9 +31,11 @@ function Home() {
             });
     }, []);
 
+
     useEffect(() => {
         fetchRecipes('');
     }, [fetchRecipes]);
+
 
     const handleSearch = () => {
         fetchRecipes(enteredIngredients.join(','));
@@ -52,6 +56,7 @@ function Home() {
         setShowIngredientsModal(true);
     };
 
+
     const renderIngredients = (ingredients) => {
         return (
             <ul>
@@ -65,11 +70,33 @@ function Home() {
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            const normalizedIngredient = encodeURIComponent(searchQuery.trim());
-            setEnteredIngredients(prevIngredients => [...prevIngredients, searchQuery.trim()]);
+            // Znajdujemy najbliższy składnik z listy podstawowych składników
+            const closestIngredient = findClosestMatch(searchQuery, basicIngredients);
+            setEnteredIngredients(prevIngredients => [...prevIngredients, closestIngredient.trim()]);
             setSearchQuery('');
-            fetchRecipes([...enteredIngredients, searchQuery.trim()].join(','));
+            fetchRecipes([...enteredIngredients, closestIngredient.trim()].join(','));
         }
+    };
+
+    const findClosestMatch = (ingredient, basicIngredients) => {
+        let minDistance = Infinity;
+        let closestIngredient = '';
+
+        // Iterujemy przez listę podstawowych składników
+        for (const category in basicIngredients) {
+            basicIngredients[category].forEach(basicIngredient => {
+                // Obliczamy odległość Levenshteina między wprowadzonym składnikiem a podstawowym składnikiem
+                const distance = levenshtein(ingredient.toLowerCase(), basicIngredient.toLowerCase());
+                
+                // Jeśli odległość jest mniejsza niż obecnie najmniejsza odległość, aktualizujemy najbliższy składnik
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIngredient = basicIngredient;
+                }
+            });
+        }
+
+        return closestIngredient;
     };
 
     const sortRecipesByOwnedIngredients = () => {
@@ -84,11 +111,13 @@ function Home() {
         return sortedRecipes;
     };
 
+
     const handleSearchBasicIngredient = (ingredient) => {
-        const normalizedIngredient = encodeURIComponent(ingredient.trim());
-        setEnteredIngredients(prevIngredients => [...prevIngredients, ingredient.trim()]);
+        // Znajdujemy najbliższy składnik z listy podstawowych składników
+        const closestIngredient = findClosestMatch(ingredient, basicIngredients);
+        setEnteredIngredients(prevIngredients => [...prevIngredients, closestIngredient.trim()]);
         setSearchQuery('');
-        fetchRecipes([...enteredIngredients, ingredient.trim()].join(','));
+        fetchRecipes([...enteredIngredients, closestIngredient.trim()].join(','));
     };
 
     return (
@@ -179,9 +208,11 @@ function Home() {
                             <div className="col mb-4" key={recipe.id}>
                                 <div className="card h-100">
                                     <div className="card-body">
-                                        <h5 className="card-title">{recipe.name}</h5>
+                                        <h5 className="card-title">{recipe.name}</h5><img src={recipe.img} alt="Recipe" style={{ maxWidth: '100%', maxHeight: '100%' }} />
                                         <p>Missing Ingredients: {recipe.missingIngredientsCount}</p>
-                                        <img src={recipe.img} alt="Recipe" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+                                        <p>Difficulty: {recipe.difficulty}</p> 
+                                        <p>Preparation Time: {recipe.time}</p> 
+                                        
                                         <div className="d-flex justify-content-between">
                                             <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Show Ingredients</Button>
                                             <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">View Recipe</a>

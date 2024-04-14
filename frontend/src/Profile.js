@@ -6,10 +6,9 @@ function Profile() {
     const [userData, setUserData] = useState({});
 
     useEffect(() => {
-        // Pobierz adres e-mail użytkownika z local storage
+
         const userEmail = localStorage.getItem('userEmail');
 
-        // Wyślij zapytanie do serwera, aby pobrać nazwę użytkownika na podstawie adresu e-mail
         axios.get(`http://localhost:8081/user?email=${userEmail}`)
             .then(res => {
                 const userName = res.data.name;
