@@ -62,20 +62,25 @@ async function scrapeRecipes(url) {
                                 cook_time = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(1).text().trim();
                             }
                         }
+
                         const recipeImage = $recipe('img.gallery-picture-no').attr('src');
                         const difficulty = difficultyText.replace(/TRUDNOŚĆ:\s*/i, '');
 
-                        await axios.post('http://localhost:8081/dinner', { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time });
-
-
-
+                        await axios.post('http://localhost:8081/dinner', {
+                            recipeTitle,
+                            ingredients,
+                            recipeUrl,
+                            recipeImage,
+                            difficulty,
+                            cook_time
+                        });
 
                         console.log(`Title: ${recipeTitle}`);
                         console.log('Ingredients:', ingredients);
                         console.log('UrlPage:', recipeUrl);
                         console.log('Image:', recipeImage);
-                        console.log('dif', difficulty);
-                        console.log('cook_time', cook_time);
+                        console.log('Difficulty:', difficulty);
+                        console.log('Cook Time:', cook_time);
                     }
                 } catch (error) {
                     console.error(`Error while scraping recipe data: ${error}`);

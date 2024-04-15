@@ -41,8 +41,6 @@ async function scrapeRecipes(url) {
 
                         const commentsLink = $recipe('li span a[href="#comments"]');
                         let difficultyText, cook_time;
-                        
-
 
                         const h4Tag = $recipe('h4.marked');
 
@@ -56,28 +54,33 @@ async function scrapeRecipes(url) {
                             }
                         }
                         else {
-                        if (commentsLink.length > 0) {
-                            difficultyText = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(1).text();
-                            cook_time = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(2).text().trim();
-                        } else {
-                            difficultyText = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').first().text();
-                            cook_time = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(1).text().trim();
+                            if (commentsLink.length > 0) {
+                                difficultyText = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(1).text();
+                                cook_time = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(2).text().trim();
+                            } else {
+                                difficultyText = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').first().text();
+                                cook_time = $recipe('div.col-auto.col-lg-45.col-md-60 li:has(span)').eq(1).text().trim();
+                            }
                         }
-                    }
+
                         const recipeImage = $recipe('img.gallery-picture-no').attr('src');
                         const difficulty = difficultyText.replace(/TRUDNOŚĆ:\s*/i, '');
-                        
-                        await axios.post('http://localhost:8081/vegetarian', { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time });
-                        
 
-
+                        await axios.post('http://localhost:8081/vegetarian', {
+                            recipeTitle,
+                            ingredients,
+                            recipeUrl,
+                            recipeImage,
+                            difficulty,
+                            cook_time
+                        });
 
                         console.log(`Title: ${recipeTitle}`);
                         console.log('Ingredients:', ingredients);
                         console.log('UrlPage:', recipeUrl);
                         console.log('Image:', recipeImage);
-                        console.log('dif', difficulty);
-                        console.log('cook_time', cook_time);
+                        console.log('Difficulty:', difficulty);
+                        console.log('Cook Time:', cook_time);
                     }
                 } catch (error) {
                     console.error(`Error while scraping recipe data: ${error}`);

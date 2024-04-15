@@ -74,27 +74,8 @@ app.post('/recipes', (req, res) => {
     });
 });
 
-app.post('/vegetarian', (req, res) => {
-    const { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time } = req.body;
-
-    const decodedUrl = decodeURIComponent(recipeUrl);
-
-    const sql = "INSERT INTO meal.vegetarian(name, ingredients, url,img,difficulty,time) VALUES (?, ?, ?,?,?,?)";
-    const values = [recipeTitle, ingredients.join(', '), decodedUrl, recipeImage, difficulty, cook_time];
-
-    db.query(sql, values, (err, result) => {
-        if (err) {
-            console.error('Błąd podczas zapisywania przepisu do bazy danych:', err);
-            res.status(500).json({ message: 'Błąd podczas zapisywania przepisu do bazy danych' });
-        } else {
-            console.log('Przepis został pomyślnie zapisany do bazy danych.');
-            res.status(200).json({ message: 'Przepis został pomyślnie zapisany do bazy danych' });
-        }
-    });
-});
-
-app.get('/vegetarian', (req, res) => {
-    const sql = "SELECT * FROM meal.vegetarian";
+app.get('/recipes', (req, res) => {
+    const sql = "SELECT * FROM meal.recipes";
 
     db.query(sql, (err, result) => {
         if (err) {
@@ -107,15 +88,186 @@ app.get('/vegetarian', (req, res) => {
     });
 });
 
-app.get('/recipes', (req, res) => {
-    const sql = "SELECT * FROM meal.recipes";
+app.post('/vegetarian', (req, res) => {
+    const { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time } = req.body;
+
+    const decodedUrl = decodeURIComponent(recipeUrl);
+
+
+    const vegetarian = 1;
+
+    const sql = "INSERT INTO meal.recipes(name, ingredients, url, img, difficulty, time, vegetarian) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const values = [recipeTitle, ingredients.join(', '), decodedUrl, recipeImage, difficulty, cook_time, vegetarian];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas zapisywania przepisu do bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas zapisywania przepisu do bazy danych' });
+        } else {
+            console.log('Przepis został pomyślnie zapisany do bazy danych.');
+            res.status(200).json({ message: 'Przepis został pomyślnie zapisany do bazy danych' });
+        }
+    });
+});
+
+
+app.get('/vegetarian', (req, res) => {
+    const sql = "SELECT * FROM meal.recipes WHERE vegetarian = 1";
 
     db.query(sql, (err, result) => {
         if (err) {
             console.error('Błąd podczas pobierania przepisów z bazy danych:', err);
             res.status(500).json({ message: 'Błąd podczas pobierania przepisów z bazy danych' });
         } else {
-            console.log('Pomyślnie pobrano przepisy z bazy danych.');
+            console.log('Pomyślnie pobrano przepisy wegańskie z bazy danych.');
+            res.status(200).json(result);
+        }
+    });
+});
+
+app.post('/vegan', (req, res) => {
+    const { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time } = req.body;
+
+    const decodedUrl = decodeURIComponent(recipeUrl);
+
+
+    const vegan = 1;
+
+    const sql = "INSERT INTO meal.recipes(name, ingredients, url, img, difficulty, time, vegan) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const values = [recipeTitle, ingredients.join(', '), decodedUrl, recipeImage, difficulty, cook_time, vegan];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas zapisywania przepisu do bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas zapisywania przepisu do bazy danych' });
+        } else {
+            console.log('Przepis został pomyślnie zapisany do bazy danych.');
+            res.status(200).json({ message: 'Przepis został pomyślnie zapisany do bazy danych' });
+        }
+    });
+});
+
+
+app.get('/vegan', (req, res) => {
+    const sql = "SELECT * FROM meal.recipes WHERE vegan = 1";
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas pobierania przepisów z bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas pobierania przepisów z bazy danych' });
+        } else {
+            console.log('Pomyślnie pobrano przepisy wegańskie z bazy danych.');
+            res.status(200).json(result);
+        }
+    });
+});
+
+app.post('/meat', (req, res) => {
+    const { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time } = req.body;
+
+    const decodedUrl = decodeURIComponent(recipeUrl);
+
+
+    const meat = 1;
+
+    const sql = "INSERT INTO meal.recipes(name, ingredients, url, img, difficulty, time, meat) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const values = [recipeTitle, ingredients.join(', '), decodedUrl, recipeImage, difficulty, cook_time, meat];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas zapisywania przepisu do bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas zapisywania przepisu do bazy danych' });
+        } else {
+            console.log('Przepis został pomyślnie zapisany do bazy danych.');
+            res.status(200).json({ message: 'Przepis został pomyślnie zapisany do bazy danych' });
+        }
+    });
+});
+
+
+app.get('/meat', (req, res) => {
+    const sql = "SELECT * FROM meal.recipes WHERE meat = 1";
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas pobierania przepisów z bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas pobierania przepisów z bazy danych' });
+        } else {
+            console.log('Pomyślnie pobrano przepisy wegańskie z bazy danych.');
+            res.status(200).json(result);
+        }
+    });
+});
+
+app.post('/breakfast', (req, res) => {
+    const { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time } = req.body;
+
+    const decodedUrl = decodeURIComponent(recipeUrl);
+
+
+    const breakfast = 1;
+
+    const sql = "INSERT INTO meal.recipes(name, ingredients, url, img, difficulty, time, breakfast) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const values = [recipeTitle, ingredients.join(', '), decodedUrl, recipeImage, difficulty, cook_time, breakfast];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas zapisywania przepisu do bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas zapisywania przepisu do bazy danych' });
+        } else {
+            console.log('Przepis został pomyślnie zapisany do bazy danych.');
+            res.status(200).json({ message: 'Przepis został pomyślnie zapisany do bazy danych' });
+        }
+    });
+});
+
+
+app.get('/breakfast', (req, res) => {
+    const sql = "SELECT * FROM meal.recipes WHERE breakfast = 1";
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas pobierania przepisów z bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas pobierania przepisów z bazy danych' });
+        } else {
+            console.log('Pomyślnie pobrano przepisy wegańskie z bazy danych.');
+            res.status(200).json(result);
+        }
+    });
+});
+
+app.post('/dinner', (req, res) => {
+    const { recipeTitle, ingredients, recipeUrl, recipeImage, difficulty, cook_time } = req.body;
+
+    const decodedUrl = decodeURIComponent(recipeUrl);
+
+
+    const dinner = 1;
+
+    const sql = "INSERT INTO meal.recipes(name, ingredients, url, img, difficulty, time, dinner) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const values = [recipeTitle, ingredients.join(', '), decodedUrl, recipeImage, difficulty, cook_time, dinner];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas zapisywania przepisu do bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas zapisywania przepisu do bazy danych' });
+        } else {
+            console.log('Przepis został pomyślnie zapisany do bazy danych.');
+            res.status(200).json({ message: 'Przepis został pomyślnie zapisany do bazy danych' });
+        }
+    });
+});
+
+
+app.get('/dinner', (req, res) => {
+    const sql = "SELECT * FROM meal.recipes WHERE dinner = 1";
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas pobierania przepisów z bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas pobierania przepisów z bazy danych' });
+        } else {
+            console.log('Pomyślnie pobrano przepisy wegańskie z bazy danych.');
             res.status(200).json(result);
         }
     });
