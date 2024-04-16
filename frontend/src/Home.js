@@ -16,10 +16,11 @@ function Home() {
         fruits: ['jabłko', 'banan', 'pomarańcza', 'gruszka', 'winogrono', 'truskawka', 'malina', 'ananas', 'kiwi', 'mango'],
         meats: ['kurczak', 'wołowina', 'wieprzowina', 'indyk', 'jajka', 'łosoś', 'tuńczyk', 'szynka', 'kiełbasa', 'cielęcina']
     });
+    const [activeCategory, setActiveCategory] = useState('/recipes/search');
 
-    const fetchRecipes = useCallback((query) => {
+    const fetchRecipes = useCallback(() => {
         setLoading(true);
-        fetch(`http://localhost:8081/recipes/search?ingredients=${query}`)
+        fetch(`http://localhost:8081${activeCategory}?ingredients=${enteredIngredients.join(',')}`)
             .then(response => response.json())
             .then(data => {
                 setRecipes(data);
@@ -29,33 +30,29 @@ function Home() {
                 console.error('Błąd podczas pobierania przepisów:', error);
                 setLoading(false);
             });
-    }, []);
-
+    }, [activeCategory, enteredIngredients]);
 
     useEffect(() => {
-        fetchRecipes('');
+        fetchRecipes();
     }, [fetchRecipes]);
 
-
     const handleSearch = () => {
-        fetchRecipes(enteredIngredients.join(','));
+        fetchRecipes();
         setSearchQuery('');
     };
 
     const handleLogout = () => {
-        window.location.href = "http://localhost:3000/"; 
+        window.location.href = "http://localhost:3000/";
     };
 
     const removeEnteredIngredient = (indexToRemove) => {
         setEnteredIngredients(prevIngredients => prevIngredients.filter((_, index) => index !== indexToRemove));
-        fetchRecipes(enteredIngredients.filter((_, index) => index !== indexToRemove).join(','));
     };
 
     const handleShowIngredients = (ingredients) => {
         setSelectedRecipeIngredients(ingredients.split(','));
         setShowIngredientsModal(true);
     };
-
 
     const renderIngredients = (ingredients) => {
         return (
@@ -70,11 +67,9 @@ function Home() {
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            // Znajdujemy najbliższy składnik z listy podstawowych składników
             const closestIngredient = findClosestMatch(searchQuery, basicIngredients);
             setEnteredIngredients(prevIngredients => [...prevIngredients, closestIngredient.trim()]);
             setSearchQuery('');
-            fetchRecipes([...enteredIngredients, closestIngredient.trim()].join(','));
         }
     };
 
@@ -82,13 +77,10 @@ function Home() {
         let minDistance = Infinity;
         let closestIngredient = '';
 
-        // Iterujemy przez listę podstawowych składników
         for (const category in basicIngredients) {
             basicIngredients[category].forEach(basicIngredient => {
-                // Obliczamy odległość Levenshteina między wprowadzonym składnikiem a podstawowym składnikiem
                 const distance = levenshtein(ingredient.toLowerCase(), basicIngredient.toLowerCase());
-                
-                // Jeśli odległość jest mniejsza niż obecnie najmniejsza odległość, aktualizujemy najbliższy składnik
+
                 if (distance < minDistance) {
                     minDistance = distance;
                     closestIngredient = basicIngredient;
@@ -111,13 +103,10 @@ function Home() {
         return sortedRecipes;
     };
 
-
     const handleSearchBasicIngredient = (ingredient) => {
-        // Znajdujemy najbliższy składnik z listy podstawowych składników
         const closestIngredient = findClosestMatch(ingredient, basicIngredients);
         setEnteredIngredients(prevIngredients => [...prevIngredients, closestIngredient.trim()]);
         setSearchQuery('');
-        fetchRecipes([...enteredIngredients, closestIngredient.trim()].join(','));
     };
 
     return (
@@ -142,16 +131,16 @@ function Home() {
                         </ul>
                     </div>
                 </div>
-            </nav>  
+            </nav>
             <div className="container mt-3">
                 <div className="input-group mb-3">
-                    <input 
-                        type="text" 
-                        className="form-control" 
-                        placeholder="Enter ingredients" 
-                        value={searchQuery} 
-                        onChange={event => setSearchQuery(event.target.value)} 
-                        onKeyDown={handleKeyDown} 
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter ingredients"
+                        value={searchQuery}
+                        onChange={event => setSearchQuery(event.target.value)}
+                        onKeyDown={handleKeyDown}
                     />
                     <button className="btn btn-outline-primary" type="button" onClick={handleSearch}>Search</button>
                 </div>
@@ -165,6 +154,16 @@ function Home() {
                 </div>
             </div>
             <div className="container mt-5 border-top pt-5">
+                <div className="row mb-3">
+                    <div className="col">
+                        <Button className={`me-2 ${activeCategory === '/dinner/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/dinner/search' ? '/recipes/search' : '/dinner/search')}>Dinner</Button>
+                        <Button className={`me-2 ${activeCategory === '/breakfast/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/breakfast/search' ? '/recipes/search' : '/breakfast/search')}>Breakfast</Button>
+                        <Button className={`me-2 ${activeCategory === '/vegetarian/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/vegetarian/search' ? '/recipes/search' : '/vegetarian/search')}>Vegetarian</Button>
+                        <Button className={`me-2 ${activeCategory === '/vegan/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/vegan/search' ? '/recipes/search' : '/vegan/search')}>Vegan</Button>
+                        <Button className={`me-2 ${activeCategory === '/meat/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/meat/search' ? '/recipes/search' : '/meat/search')}>Meat</Button>
+
+                    </div>
+                </div>
                 <h2>Basic Ingredients</h2>
                 <div className="row">
                     <div className="col">
@@ -191,7 +190,7 @@ function Home() {
                         <h3>Meats</h3>
                         <div className="d-flex flex-wrap">
                             {basicIngredients.meats.map((ingredient, index) => (
-                                <div key={index} className="badge bg-danger me-2 mb-2 p-2" onClick={() => handleSearchBasicIngredient(ingredient)}>
+                                <div key={index} className={`badge ${activeCategory === '/meat/search' ? 'bg-success' : 'bg-danger'} me-2 mb-2 p-2`} onClick={() => handleSearchBasicIngredient(ingredient)}>
                                     {ingredient}
                                 </div>
                             ))}
@@ -210,9 +209,9 @@ function Home() {
                                     <div className="card-body">
                                         <h5 className="card-title">{recipe.name}</h5><img src={recipe.img} alt="Recipe" style={{ maxWidth: '100%', maxHeight: '100%' }} />
                                         <p>Missing Ingredients: {recipe.missingIngredientsCount}</p>
-                                        <p>Difficulty: {recipe.difficulty}</p> 
-                                        <p>Preparation Time: {recipe.time}</p> 
-                                        
+                                        <p>Difficulty: {recipe.difficulty}</p>
+                                        <p>Preparation Time: {recipe.time}</p>
+
                                         <div className="d-flex justify-content-between">
                                             <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Show Ingredients</Button>
                                             <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">View Recipe</a>

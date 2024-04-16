@@ -323,6 +323,155 @@ app.get('/recipes/search', (req, res) => {
     });
 });
 
+app.get('/dinner/search', (req, res) => {
+    const searchQuery = req.query.ingredients;
+    const normalizedIngredients = normalizeIngredients(searchQuery);
+
+    const placeholders = normalizedIngredients.map(() => 'ingredients LIKE ?').join(' OR ');
+    const values = normalizedIngredients.map(ingredient => `%${ingredient}%`);
+
+    const sql = `SELECT * FROM meal.recipes WHERE ${placeholders} AND dinner=1`;
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas wyszukiwania przepisów:', err);
+            res.status(500).json({ message: 'Błąd podczas wyszukiwania przepisów' });
+        } else {
+            console.log('Pomyślnie znaleziono przepisy pasujące do wyszukiwania.');
+
+            const recipesWithMissingIngredients = result.map(recipe => {
+                const recipeIngredients = recipe.ingredients.split(',').map(ingredient => ingredient.trim().toLowerCase());
+                const missingIngredients = normalizedIngredients.filter(ingredient => !recipeIngredients.includes(ingredient));
+                return {
+                    ...recipe,
+                    missingIngredients: missingIngredients
+                };
+            });
+
+            res.status(200).json(recipesWithMissingIngredients);
+        }
+    });
+});
+
+app.get('/meat/search', (req, res) => {
+    const searchQuery = req.query.ingredients;
+    const normalizedIngredients = normalizeIngredients(searchQuery);
+
+    const placeholders = normalizedIngredients.map(() => 'ingredients LIKE ?').join(' OR ');
+    const values = normalizedIngredients.map(ingredient => `%${ingredient}%`);
+
+    const sql = `SELECT * FROM meal.recipes WHERE ${placeholders} AND meat=1`;
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas wyszukiwania przepisów:', err);
+            res.status(500).json({ message: 'Błąd podczas wyszukiwania przepisów' });
+        } else {
+            console.log('Pomyślnie znaleziono przepisy pasujące do wyszukiwania.');
+
+            const recipesWithMissingIngredients = result.map(recipe => {
+                const recipeIngredients = recipe.ingredients.split(',').map(ingredient => ingredient.trim().toLowerCase());
+                const missingIngredients = normalizedIngredients.filter(ingredient => !recipeIngredients.includes(ingredient));
+                return {
+                    ...recipe,
+                    missingIngredients: missingIngredients
+                };
+            });
+
+            res.status(200).json(recipesWithMissingIngredients);
+        }
+    });
+});
+
+app.get('/vegan/search', (req, res) => {
+    const searchQuery = req.query.ingredients;
+    const normalizedIngredients = normalizeIngredients(searchQuery);
+
+    const placeholders = normalizedIngredients.map(() => 'ingredients LIKE ?').join(' OR ');
+    const values = normalizedIngredients.map(ingredient => `%${ingredient}%`);
+
+    const sql = `SELECT * FROM meal.recipes WHERE ${placeholders} AND vegan=1`;
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas wyszukiwania przepisów:', err);
+            res.status(500).json({ message: 'Błąd podczas wyszukiwania przepisów' });
+        } else {
+            console.log('Pomyślnie znaleziono przepisy pasujące do wyszukiwania.');
+
+            const recipesWithMissingIngredients = result.map(recipe => {
+                const recipeIngredients = recipe.ingredients.split(',').map(ingredient => ingredient.trim().toLowerCase());
+                const missingIngredients = normalizedIngredients.filter(ingredient => !recipeIngredients.includes(ingredient));
+                return {
+                    ...recipe,
+                    missingIngredients: missingIngredients
+                };
+            });
+
+            res.status(200).json(recipesWithMissingIngredients);
+        }
+    });
+});
+
+app.get('/breakfast/search', (req, res) => {
+    const searchQuery = req.query.ingredients;
+    const normalizedIngredients = normalizeIngredients(searchQuery);
+
+    const placeholders = normalizedIngredients.map(() => 'ingredients LIKE ?').join(' OR ');
+    const values = normalizedIngredients.map(ingredient => `%${ingredient}%`);
+
+    const sql = `SELECT * FROM meal.recipes WHERE ${placeholders} AND breakfast=1`;
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas wyszukiwania przepisów:', err);
+            res.status(500).json({ message: 'Błąd podczas wyszukiwania przepisów' });
+        } else {
+            console.log('Pomyślnie znaleziono przepisy pasujące do wyszukiwania.');
+
+            const recipesWithMissingIngredients = result.map(recipe => {
+                const recipeIngredients = recipe.ingredients.split(',').map(ingredient => ingredient.trim().toLowerCase());
+                const missingIngredients = normalizedIngredients.filter(ingredient => !recipeIngredients.includes(ingredient));
+                return {
+                    ...recipe,
+                    missingIngredients: missingIngredients
+                };
+            });
+
+            res.status(200).json(recipesWithMissingIngredients);
+        }
+    });
+});
+
+app.get('/vegetarian/search', (req, res) => {
+    const searchQuery = req.query.ingredients;
+    const normalizedIngredients = normalizeIngredients(searchQuery);
+
+    const placeholders = normalizedIngredients.map(() => 'ingredients LIKE ?').join(' OR ');
+    const values = normalizedIngredients.map(ingredient => `%${ingredient}%`);
+
+    const sql = `SELECT * FROM meal.recipes WHERE ${placeholders} AND vegetarian=1`; // Poprawiono literówkę: z vegatarian na vegetarian
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Błąd podczas wyszukiwania przepisów:', err);
+            res.status(500).json({ message: 'Błąd podczas wyszukiwania przepisów' });
+        } else {
+            console.log('Pomyślnie znaleziono przepisy pasujące do wyszukiwania.');
+
+            const recipesWithMissingIngredients = result.map(recipe => {
+                const recipeIngredients = recipe.ingredients.split(',').map(ingredient => ingredient.trim().toLowerCase());
+                const missingIngredients = normalizedIngredients.filter(ingredient => !recipeIngredients.includes(ingredient));
+                return {
+                    ...recipe,
+                    missingIngredients: missingIngredients
+                };
+            });
+
+            res.status(200).json(recipesWithMissingIngredients);
+        }
+    });
+});
 
 
 
