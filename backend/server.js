@@ -274,7 +274,7 @@ app.get('/dinner', (req, res) => {
 });
 
 app.get('/user', (req, res) => {
-    const userEmail = req.query.email; 
+    const userEmail = req.query.email;
 
     const sql = "SELECT name FROM login WHERE email = ?";
     db.query(sql, [userEmail], (err, result) => {
@@ -292,6 +292,24 @@ app.get('/user', (req, res) => {
     });
 });
 
+app.get('/id', (req, res) => {
+    const userEmail = req.query.email;
+
+    const sql = "SELECT id FROM login WHERE email = ?";
+    db.query(sql, [userEmail], (err, result) => {
+        if (err) {
+            console.error('Błąd podczas pobierania nazwy użytkownika z bazy danych:', err);
+            res.status(500).json({ message: 'Błąd podczas pobierania nazwy użytkownika z bazy danych' });
+        } else {
+            if (result.length > 0) {
+                const userid = result[0].id;
+                res.status(200).json({ id: userid });
+            } else {
+                res.status(404).json({ message: 'Nie znaleziono użytkownika o podanym adresie e-mail' });
+            }
+        }
+    });
+});
 
 app.get('/recipes/search', (req, res) => {
     const searchQuery = req.query.ingredients;
@@ -443,6 +461,7 @@ app.get('/breakfast/search', (req, res) => {
     });
 });
 
+
 app.get('/vegetarian/search', (req, res) => {
     const searchQuery = req.query.ingredients;
     const normalizedIngredients = normalizeIngredients(searchQuery);
@@ -450,7 +469,7 @@ app.get('/vegetarian/search', (req, res) => {
     const placeholders = normalizedIngredients.map(() => 'ingredients LIKE ?').join(' OR ');
     const values = normalizedIngredients.map(ingredient => `%${ingredient}%`);
 
-    const sql = `SELECT * FROM meal.recipes WHERE ${placeholders} AND vegetarian=1`; // Poprawiono literówkę: z vegatarian na vegetarian
+    const sql = `SELECT * FROM meal.recipes WHERE ${placeholders} AND vegetarian=1`;
 
     db.query(sql, values, (err, result) => {
         if (err) {
@@ -472,6 +491,52 @@ app.get('/vegetarian/search', (req, res) => {
         }
     });
 });
+
+
+app.post('/favoriteRecipes/add', (req, res) => {
+    const { userId, recipeId } = req.body;
+
+    if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+
+    const sql = "INSERT INTO meal.fav_recipes (id_user,id_recipe) VALUES (?, ?)";
+    const values = [userId, recipeId];
+
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error('Error adding recipe to favorites:', err);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+        console.log('Recipe added to favorites successfully');
+        return res.status(200).json({ message: 'Recipe added to favorites' });
+    });
+});
+
+app.get('/favoriteRecipes/show', (req, res) => {
+    const userId = req.query.id;
+
+    if (!userId) {
+        return res.status(400).json({ message: 'Unauthorized' });
+    }
+
+    const sql = `SELECT recipes.* FROM meal.fav_recipes 
+                INNER JOIN meal.recipes ON fav_recipes.id_recipe = recipes.id
+                WHERE fav_recipes.id_user = ?`;
+
+    db.query(sql, [userId], (err, result) => {
+        if (err) {
+            console.error('Error retrieving favorite recipes:', err);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+
+        console.log('Favorite recipes retrieved successfully');
+        return res.status(200).json(result);
+    });
+});
+
 
 
 

@@ -18,9 +18,8 @@ function Login() {
         axios.post('http://localhost:8081/login', values)
             .then(res => {
                 if(res.data === "Success") {
-
                     localStorage.setItem('userEmail', values.email);
-                    localStorage.setItem('userName', values.name);
+                    localStorage.setItem('userName', values.name); 
                     navigate('/home');
                 } else {
                     alert("No record existed");
@@ -28,6 +27,9 @@ function Login() {
             })
             .catch(err => console.log(err));
     };
+
+
+    
 
     return (
         

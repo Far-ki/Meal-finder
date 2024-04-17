@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 import levenshtein from 'js-levenshtein';
-
+import axios from "axios";
 function Home() {
-
+    const [userData, setUserData] = useState({});
     const [recipes, setRecipes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
@@ -35,6 +35,22 @@ function Home() {
     useEffect(() => {
         fetchRecipes();
     }, [fetchRecipes]);
+
+    useEffect(() => {
+
+        const userEmail = localStorage.getItem('userEmail');
+
+        axios.get(`http://localhost:8081/id?email=${userEmail}`)
+            .then(res => {
+                const userid = res.data.id;
+                setUserData({ email: userEmail, id: userid });
+            })
+            .catch(err => {
+                console.error('Błąd podczas pobierania id:', err);
+            });
+    }, []);
+
+
 
     const handleSearch = () => {
         fetchRecipes();
@@ -109,6 +125,17 @@ function Home() {
         setSearchQuery('');
     };
 
+    const addToFavorites = (recipeId,userId) => {
+        axios.post('http://localhost:8081/favoriteRecipes/add', { userId: userData.id, recipeId })
+            .then(res => {
+                console.log('Recipe added to favorites:', res.data);
+            })
+            .catch(err => {
+                console.error('Error adding recipe to favorites:', err);
+            });
+    };
+    
+
     return (
         <div>
             <nav className="navbar navbar-expand-lg bg-secondary">
@@ -153,7 +180,9 @@ function Home() {
                     ))}
                 </div>
             </div>
+
             <div className="container mt-5 border-top pt-5">
+                <h2>Category</h2>
                 <div className="row mb-3">
                     <div className="col">
                         <Button className={`me-2 ${activeCategory === '/dinner/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/dinner/search' ? '/recipes/search' : '/dinner/search')}>Dinner</Button>
@@ -214,6 +243,7 @@ function Home() {
 
                                         <div className="d-flex justify-content-between">
                                             <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Show Ingredients</Button>
+                                            <Button variant="success" onClick={() => addToFavorites(recipe.id,userData.name)}>Add to Favorites</Button>
                                             <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">View Recipe</a>
                                         </div>
                                     </div>

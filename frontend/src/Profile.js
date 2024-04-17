@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { Modal, Button } from 'react-bootstrap';
 
 function Profile() {
     const [userData, setUserData] = useState({});
+    const [userData2, setUserData2] = useState({});
+    const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [showIngredientsModal, setShowIngredientsModal] = useState(false);
+    const [recipeIngredients, setRecipeIngredients] = useState([]);
 
     useEffect(() => {
-
         const userEmail = localStorage.getItem('userEmail');
-
         axios.get(`http://localhost:8081/user?email=${userEmail}`)
             .then(res => {
                 const userName = res.data.name;
@@ -17,7 +21,47 @@ function Profile() {
             .catch(err => {
                 console.error('Błąd podczas pobierania nazwy użytkownika:', err);
             });
+
+        axios.get(`http://localhost:8081/id?email=${userEmail}`)
+            .then(res => {
+                const userid = res.data.id;
+                setUserData2({ email: userEmail, id: userid });
+            })
+            .catch(err => {
+                console.error('Błąd podczas pobierania id:', err);
+            });
+
     }, []);
+
+    useEffect(() => {
+        if (userData2.id) {
+            setLoading(true);
+            axios.get(`http://localhost:8081/favoriteRecipes/show?id=${userData2.id}`)
+                .then(response => {
+                    setFavoriteRecipes(response.data);
+                    setLoading(false);
+                })
+                .catch(error => {
+                    console.error('Błąd podczas pobierania ulubionych przepisów:', error);
+                    setLoading(false);
+                });
+        }
+    }, [userData2.id]);
+
+    const handleShowIngredients = (ingredients) => {
+        setRecipeIngredients(ingredients.split(','));
+        setShowIngredientsModal(true);
+    };
+
+    const renderIngredients = (ingredients) => {
+        return (
+            <ul>
+                {ingredients.map((ingredient, index) => (
+                    <li key={index}>{ingredient}</li>
+                ))}
+            </ul>
+        );
+    };
 
     return (
         <div>
@@ -51,7 +95,39 @@ function Profile() {
                 </div>
                 <div>
                     <h3>Favorite Recipes:</h3>
-                    {/* Wyświetlanie ulubionych przepisów */}
+                    <div className="container mt-5">
+                        {loading ? (
+                            <p>Loading...</p>
+                        ) : (
+                            <div className="row row-cols-1 row-cols-md-3 g-4">
+                                {favoriteRecipes.map(recipe => (
+                                    <div className="col mb-4" key={recipe.id}>
+                                        <div className="card h-100">
+                                            <div className="card-body">
+                                                <h5 className="card-title">{recipe.name}</h5>
+                                                <img src={recipe.img} alt="Recipe" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+                                                <p>Missing Ingredients: {recipe.missingIngredientsCount}</p>
+                                                <p>Difficulty: {recipe.difficulty}</p>
+                                                <p>Preparation Time: {recipe.time}</p>
+                                                <div className="d-flex justify-content-between">
+                                                    <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Show Ingredients</Button>
+                                                    <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">View Recipe</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <Modal show={showIngredientsModal} onHide={() => setShowIngredientsModal(false)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Ingredients</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            {renderIngredients(recipeIngredients)}
+                        </Modal.Body>
+                    </Modal>
                 </div>
             </div>
         </div>
