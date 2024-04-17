@@ -537,7 +537,21 @@ app.get('/favoriteRecipes/show', (req, res) => {
     });
 });
 
-
+app.delete('/favoriteRecipes/:recipeId', (req, res) => {
+    const recipeId = req.params.recipeId;
+  
+    const sql = `DELETE FROM meal.fav_recipes WHERE id_recipe = ?`;
+  
+    db.query(sql, [recipeId], (err, result) => {
+      if (err) {
+        console.error('Error removing recipe from favorites:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+  
+      console.log('Recipe removed from favorites successfully');
+      return res.status(200).json({ message: 'Recipe removed from favorites successfully' });
+    });
+  });
 
 
 app.listen(8081, () => {

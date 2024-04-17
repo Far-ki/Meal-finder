@@ -53,6 +53,16 @@ function Profile() {
         setShowIngredientsModal(true);
     };
 
+    const handleRemoveFromFavorites = (recipeId) => {
+        axios.delete(`http://localhost:8081/favoriteRecipes/${recipeId}`)
+            .then(response => {
+                setFavoriteRecipes(favoriteRecipes.filter(recipe => recipe.id !== recipeId));
+            })
+            .catch(error => {
+                console.error('Błąd podczas usuwania przepisu z ulubionych:', error);
+            });
+    };
+
     const renderIngredients = (ingredients) => {
         return (
             <ul>
@@ -111,6 +121,7 @@ function Profile() {
                                                 <p>Preparation Time: {recipe.time}</p>
                                                 <div className="d-flex justify-content-between">
                                                     <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Show Ingredients</Button>
+                                                    <Button variant="danger" onClick={() => handleRemoveFromFavorites(recipe.id)}>Remove from Favorites</Button>
                                                     <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">View Recipe</a>
                                                 </div>
                                             </div>
