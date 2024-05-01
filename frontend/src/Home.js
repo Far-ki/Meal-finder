@@ -147,13 +147,13 @@ function Home() {
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="/home">Home</a>
+                                <a className="nav-link active" aria-current="page" href="/home">Strona główna</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="/profile">Profile</a>
+                                <a className="nav-link" href="/profile">Profil</a>
                             </li>
                             <li className="nav-item">
-                                <button className="nav-link btn btn-danger" onClick={handleLogout}>Logout</button>
+                                <button className="nav-link btn btn-danger" onClick={handleLogout}>Wyloguj</button>
                             </li>
                         </ul>
                     </div>
@@ -164,12 +164,12 @@ function Home() {
                     <input
                         type="text"
                         className="form-control"
-                        placeholder="Enter ingredients"
+                        placeholder="Wprowadz składniki"
                         value={searchQuery}
                         onChange={event => setSearchQuery(event.target.value)}
                         onKeyDown={handleKeyDown}
                     />
-                    <button className="btn btn-outline-primary" type="button" onClick={handleSearch}>Search</button>
+                    <button className="btn btn-outline-primary" type="button" onClick={handleSearch}>Wyszukaj</button>
                 </div>
                 <div>
                     {enteredIngredients.map((ingredient, index) => (
@@ -185,18 +185,18 @@ function Home() {
                 <h2>Category</h2>
                 <div className="row mb-3">
                     <div className="col">
-                        <Button className={`me-2 ${activeCategory === '/dinner/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/dinner/search' ? '/recipes/search' : '/dinner/search')}>Dinner</Button>
-                        <Button className={`me-2 ${activeCategory === '/breakfast/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/breakfast/search' ? '/recipes/search' : '/breakfast/search')}>Breakfast</Button>
-                        <Button className={`me-2 ${activeCategory === '/vegetarian/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/vegetarian/search' ? '/recipes/search' : '/vegetarian/search')}>Vegetarian</Button>
-                        <Button className={`me-2 ${activeCategory === '/vegan/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/vegan/search' ? '/recipes/search' : '/vegan/search')}>Vegan</Button>
-                        <Button className={`me-2 ${activeCategory === '/meat/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/meat/search' ? '/recipes/search' : '/meat/search')}>Meat</Button>
+                        <Button className={`me-2 ${activeCategory === '/dinner/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/dinner/search' ? '/recipes/search' : '/dinner/search')}>Obiad</Button>
+                        <Button className={`me-2 ${activeCategory === '/breakfast/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/breakfast/search' ? '/recipes/search' : '/breakfast/search')}>Śniadanie</Button>
+                        <Button className={`me-2 ${activeCategory === '/vegetarian/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/vegetarian/search' ? '/recipes/search' : '/vegetarian/search')}>Wegetariańskie</Button>
+                        <Button className={`me-2 ${activeCategory === '/vegan/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/vegan/search' ? '/recipes/search' : '/vegan/search')}>Wegańskie</Button>
+                        <Button className={`me-2 ${activeCategory === '/meat/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/meat/search' ? '/recipes/search' : '/meat/search')}>Mięso</Button>
 
                     </div>
                 </div>
-                <h2>Basic Ingredients</h2>
+                <h2>Produkty</h2>
                 <div className="row">
                     <div className="col">
-                        <h3>Vegetables</h3>
+                        <h3>Warzywa</h3>
                         <div className="d-flex flex-wrap">
                             {basicIngredients.vegetables.map((ingredient, index) => (
                                 <div key={index} className="badge bg-success me-2 mb-2 p-2" onClick={() => handleSearchBasicIngredient(ingredient)}>
@@ -206,7 +206,7 @@ function Home() {
                         </div>
                     </div>
                     <div className="col">
-                        <h3>Fruits</h3>
+                        <h3>Owoce</h3>
                         <div className="d-flex flex-wrap">
                             {basicIngredients.fruits.map((ingredient, index) => (
                                 <div key={index} className="badge bg-warning me-2 mb-2 p-2" onClick={() => handleSearchBasicIngredient(ingredient)}>
@@ -216,7 +216,7 @@ function Home() {
                         </div>
                     </div>
                     <div className="col">
-                        <h3>Meats</h3>
+                        <h3>Mięso</h3>
                         <div className="d-flex flex-wrap">
                             {basicIngredients.meats.map((ingredient, index) => (
                                 <div key={index} className={`badge ${activeCategory === '/meat/search' ? 'bg-success' : 'bg-danger'} me-2 mb-2 p-2`} onClick={() => handleSearchBasicIngredient(ingredient)}>
@@ -236,15 +236,15 @@ function Home() {
                             <div className="col mb-4" key={recipe.id}>
                                 <div className="card h-100">
                                     <div className="card-body">
-                                        <h5 className="card-title">{recipe.name}</h5><img src={recipe.img} alt="Recipe" style={{ maxWidth: '100%', maxHeight: '100%' }} />
-                                        <p>Missing Ingredients: {recipe.missingIngredientsCount}</p>
-                                        <p>Difficulty: {recipe.difficulty}</p>
-                                        <p>Preparation Time: {recipe.time}</p>
+                                        <h5 className="card-title">{recipe.name}</h5><img src={recipe.img} alt="Recipe" style={{ width: '380px', height: '250px' }} />
+                                        <p>Brakujące składniki: {recipe.missingIngredientsCount}</p>
+                                        <p>Poziom trudności: {recipe.difficulty}</p>
+                                        <p>{recipe.time} min</p>
 
                                         <div className="d-flex justify-content-between">
-                                            <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Show Ingredients</Button>
-                                            <Button variant="success" onClick={() => addToFavorites(recipe.id,userData.name)}>Add to Favorites</Button>
-                                            <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">View Recipe</a>
+                                            <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Pokaż składniki</Button>
+                                            <Button variant="success" onClick={() => addToFavorites(recipe.id,userData.name)}>Dodaj do ulubionych</Button>
+                                            <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Pokaż przepis</a>
                                         </div>
                                     </div>
                                 </div>
@@ -255,7 +255,7 @@ function Home() {
             </div>
             <Modal show={showIngredientsModal} onHide={() => setShowIngredientsModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Ingredients</Modal.Title>
+                    <Modal.Title>Składniki</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {renderIngredients(selectedRecipeIngredients)}

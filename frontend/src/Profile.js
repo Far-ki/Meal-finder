@@ -84,19 +84,19 @@ function Profile() {
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
                             <li className="nav-item">
-                                <Link className="nav-link" to="/home">Home</Link>
+                                <Link className="nav-link" to="/home">Strona główna</Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link" to="/profile">Profile</Link>
+                                <Link className="nav-link" to="/profile">Profil</Link>
                             </li>
                         </ul>
                     </div>
                 </div>
             </nav>
             <div className="container mt-5">
-                <h2 className="mb-4">User Profile</h2>
+                <h2 className="mb-4">Profil użytkownika</h2>
                 <div className="mb-3">
-                    <label className="form-label">Name:</label>
+                    <label className="form-label">Imie:</label>
                     <input type="text" className="form-control" value={userData.name || ''} readOnly />
                 </div>
                 <div className="mb-3">
@@ -104,25 +104,23 @@ function Profile() {
                     <input type="email" className="form-control" value={userData.email || ''} readOnly />
                 </div>
                 <div>
-                    <h3>Favorite Recipes:</h3>
+                    <h3>Ulubione przepisy:</h3>
                     <div className="container mt-5">
                         {loading ? (
-                            <p>Loading...</p>
+                            <p>Ładowanie...</p>
                         ) : (
                             <div className="row row-cols-1 row-cols-md-3 g-4">
                                 {favoriteRecipes.map(recipe => (
                                     <div className="col mb-4" key={recipe.id}>
                                         <div className="card h-100">
                                             <div className="card-body">
-                                                <h5 className="card-title">{recipe.name}</h5>
-                                                <img src={recipe.img} alt="Recipe" style={{ maxWidth: '100%', maxHeight: '100%' }} />
-                                                <p>Missing Ingredients: {recipe.missingIngredientsCount}</p>
-                                                <p>Difficulty: {recipe.difficulty}</p>
-                                                <p>Preparation Time: {recipe.time}</p>
+                                                <h5 className="card-title">{recipe.name}</h5><img src={recipe.img} alt="Recipe" style={{ width: '380px', height: '250px' }} />
+                                                <p>poziom trudności: {recipe.difficulty}</p>
+                                                <p>Czas przygotownia: {recipe.time}</p>
                                                 <div className="d-flex justify-content-between">
-                                                    <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Show Ingredients</Button>
-                                                    <Button variant="danger" onClick={() => handleRemoveFromFavorites(recipe.id)}>Remove from Favorites</Button>
-                                                    <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">View Recipe</a>
+                                                    <Button variant="info" onClick={() => handleShowIngredients(recipe.ingredients)}>Pokaż składniki</Button>
+                                                    <Button variant="danger" onClick={() => handleRemoveFromFavorites(recipe.id)}>Usuń z ulubionych</Button>
+                                                    <a href={decodeURIComponent(recipe.url)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Pokaż przepis</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -133,7 +131,7 @@ function Profile() {
                     </div>
                     <Modal show={showIngredientsModal} onHide={() => setShowIngredientsModal(false)}>
                         <Modal.Header closeButton>
-                            <Modal.Title>Ingredients</Modal.Title>
+                            <Modal.Title>Składniki</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
                             {renderIngredients(recipeIngredients)}

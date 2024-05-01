@@ -80,7 +80,7 @@ async function scrapeRecipes(url) {
                         console.log('UrlPage:', recipeUrl);
                         console.log('Image:', recipeImage);
                         console.log('Difficulty:', difficulty);
-                        console.log('Cook Time:', cook_time);
+                        console.log('', cook_time);
                     }
                 } catch (error) {
                     console.error(`Error while scraping recipe data: ${error}`);
