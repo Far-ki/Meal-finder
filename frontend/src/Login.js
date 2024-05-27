@@ -17,19 +17,17 @@ function Login() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const validationErrors = Validation(values);
-        setErrors(validationErrors);
-
-        if (Object.keys(validationErrors).length === 0) {
-            axios.post('http://localhost:8081/login', values)
-                .then(res => {
-                    if (res.data === "Success") {
-                        localStorage.setItem('userEmail', values.email);
-                        navigate('/home');
-                    }
-                })
-                .catch(err => console.log(err));
-        }
+        axios.post('http://localhost:8081/login', values)
+            .then(res => {
+                if (res.data === "Success") {
+                    localStorage.setItem('userEmail', values.email);
+                    localStorage.setItem('userName', values.name);
+                    navigate('/home');
+                } else {
+                    alert("No record existed");
+                }
+            })
+            .catch(err => console.log(err));
     };
 
     return (
