@@ -25,8 +25,6 @@ function Login() {
                 .then(res => {
                     if (res.data === "Success") {
                         localStorage.setItem('userEmail', values.email);
-                        // Assuming you meant to set user's name here, but 'name' is not part of 'values'.
-                        // localStorage.setItem('userName', values.name); 
                         navigate('/home');
                     }
                 })
