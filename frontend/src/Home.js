@@ -182,7 +182,7 @@ function Home() {
             </div>
 
             <div className="container mt-5 border-top pt-5">
-                <h2>Category</h2>
+                <h2>Kategorie</h2>
                 <div className="row mb-3">
                     <div className="col">
                         <Button className={`me-2 ${activeCategory === '/dinner/search' ? 'btn-success' : 'btn-danger'}`} onClick={() => setActiveCategory(activeCategory === '/dinner/search' ? '/recipes/search' : '/dinner/search')}>Obiad</Button>
